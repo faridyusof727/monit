@@ -37,6 +37,9 @@ func InitCron(dbsql *gorm.DB) {
 
 		dbsql.Find(&monitors)
 
+		// TODO:
+		// This process should be in go routine.
+		// I still don't have enough time to refactor this piece of code.
 		for _, val := range monitors {
 			if counter.Current%val.IntervalInMinute == 0 {
 				var resp *http.Response
