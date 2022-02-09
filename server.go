@@ -21,6 +21,9 @@ func main() {
 
 	// Setting up timezone
 	loc, err := time.LoadLocation(os.Getenv("APP_TZ"))
+	if err != nil {
+		e.Logger.Fatal("Error loading timezone")
+	}
 	time.Local = loc
 
 	// Init DB
