@@ -13,7 +13,7 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
-	// Load config
+	// Load config test
 	err := godotenv.Load(".env")
 	if err != nil {
 		e.Logger.Fatal("Error loading .env file")
