@@ -46,11 +46,12 @@ func (a Monitor) Validate() error {
 }
 
 func (a Monitor) isDefault(value interface{}) error {
-	if value == DefaultInterval {
+
+	if value == DefaultInterval || value == 0 {
 		return nil
 	}
 
-	if value == DefaultTimeout {
+	if value == DefaultTimeout || value == 0 {
 		return nil
 	}
 
