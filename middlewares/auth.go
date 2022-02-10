@@ -2,11 +2,12 @@ package middlewares
 
 import (
 	"context"
-	"firebase.google.com/go/v4/auth"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+
+	"firebase.google.com/go/v4/auth"
+	"github.com/labstack/echo/v4"
 )
 
 type Auth struct {
@@ -21,7 +22,7 @@ func (a *Auth) Check(next echo.HandlerFunc) echo.HandlerFunc {
 
 		user, err := a.AuthClient.VerifyIDToken(context.Background(), token)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusForbidden, "Unauthorized")
+			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
 		}
 
 		c.Request().Header.Set("UID", user.UID)

@@ -25,6 +25,9 @@ func (m Monitor) Store(ec echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// add UID as owner
+	monitor.Owner = ec.Request().Header.Get("UID")
+
 	op := m.DB.Create(monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
@@ -38,7 +41,7 @@ func (m Monitor) Edit(ec echo.Context) error {
 
 	id := ec.Param("id")
 
-	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor)
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: ec.Request().Header.Get("UID")}).First(&monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
 	}
@@ -64,7 +67,7 @@ func (m Monitor) Edit(ec echo.Context) error {
 func (m Monitor) List(ec echo.Context) error {
 	monitors := []models.Monitor{}
 
-	op := m.DB.Where(models.Monitor{Owner: "abcd"}).Find(&monitors)
+	op := m.DB.Where(models.Monitor{Owner: ec.Request().Header.Get("UID")}).Find(&monitors)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
 	}
@@ -77,7 +80,7 @@ func (m Monitor) View(ec echo.Context) error {
 
 	monitor := models.Monitor{}
 
-	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor)
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: ec.Request().Header.Get("UID")}).First(&monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
 	}
@@ -90,7 +93,7 @@ func (m Monitor) Delete(ec echo.Context) error {
 
 	monitor := models.Monitor{}
 
-	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor).Delete(&monitor)
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: ec.Request().Header.Get("UID")}).First(&monitor).Delete(&monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
 	}

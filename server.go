@@ -1,6 +1,7 @@
 package main
 
 import (
+	"mon-tool-be/middlewares"
 	"mon-tool-be/utils"
 	"os"
 	"time"
@@ -42,16 +43,17 @@ func main() {
 	// Init Cron
 	InitCron(db)
 
+	// Firebase instance
+	firebaseAuth := utils.FirebaseAuth("firebase-admin-sdk.json")
+	firebase := middlewares.Auth{
+		AuthClient: firebaseAuth,
+	}
+
 	// Middlewares
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
-	// firebase instance
-	//firebaseAuth := utils.FirebaseAuth("firebase-admin-sdk.json")
-	//firebase := middlewares.Auth{
-	//	AuthClient: firebaseAuth,
-	//}
-	//e.Use(firebase.Check)
+	e.Use(firebase.Check)
+	
 
 	// Router
 	initRouter(e, db)
