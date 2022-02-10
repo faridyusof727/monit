@@ -4,3 +4,4 @@ vendor
 .env
 tmp
 store
+firebase-admin-sdk.json
