@@ -56,6 +56,9 @@ func (m Monitor) Edit(ec echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// add UID as owner
+	monitor.Owner = ec.Request().Header.Get("UID")
+
 	op = m.DB.Save(monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
