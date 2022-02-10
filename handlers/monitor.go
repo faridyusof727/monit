@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"mon-tool-be/models"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type Monitor struct {
@@ -30,4 +31,71 @@ func (m Monitor) Store(ec echo.Context) error {
 	}
 
 	return ec.JSON(http.StatusOK, monitor)
+}
+
+func (m Monitor) Edit(ec echo.Context) error {
+	monitor := new(models.Monitor)
+
+	id := ec.Param("id")
+
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor)
+	if op.Error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
+	}
+
+	err := ec.Bind(monitor)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "binding error")
+	}
+
+	err = monitor.Validate()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	op = m.DB.Save(monitor)
+	if op.Error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
+	}
+
+	return ec.JSON(http.StatusOK, monitor)
+}
+
+func (m Monitor) List(ec echo.Context) error {
+	monitors := []models.Monitor{}
+
+	op := m.DB.Where(models.Monitor{Owner: "abcd"}).Find(&monitors)
+	if op.Error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
+	}
+
+	return ec.JSON(http.StatusOK, monitors)
+}
+
+func (m Monitor) View(ec echo.Context) error {
+	id := ec.Param("id")
+
+	monitor := models.Monitor{}
+
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor)
+	if op.Error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
+	}
+
+	return ec.JSON(http.StatusOK, monitor)
+}
+
+func (m Monitor) Delete(ec echo.Context) error {
+	id := ec.Param("id")
+
+	monitor := models.Monitor{}
+
+	op := m.DB.Where("id = ?", id).Where(models.Monitor{Owner: "abcd"}).First(&monitor).Delete(&monitor)
+	if op.Error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
+	}
+
+	return ec.JSON(http.StatusOK, map[string]interface{}{
+		"message": "monitor deleted",
+	})
 }

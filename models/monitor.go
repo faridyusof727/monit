@@ -2,7 +2,9 @@ package models
 
 import (
 	"database/sql"
-	"github.com/go-ozzo/ozzo-validation/v4"
+	"errors"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +14,9 @@ const (
 
 	ReqPost = "post"
 	ReqGet  = "get"
+
+	DefaultInterval = 5
+	DefaultTimeout  = 30
 )
 
 type Monitor struct {
@@ -35,5 +40,19 @@ func (a Monitor) Validate() error {
 
 		validation.Field(&a.Type, validation.Required, validation.In(TypeHttp, TypeHttps)),
 		validation.Field(&a.RequestMethod, validation.Required, validation.In(ReqGet, ReqPost)),
+		validation.Field(&a.IntervalInMinute, validation.By(a.isDefault)),
+		validation.Field(&a.TimeoutInSecond, validation.By(a.isDefault)),
 	)
+}
+
+func (a Monitor) isDefault(value interface{}) error {
+	if value == DefaultInterval {
+		return nil
+	}
+
+	if value == DefaultTimeout {
+		return nil
+	}
+
+	return errors.New("field is not default")
 }
