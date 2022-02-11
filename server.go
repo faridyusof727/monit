@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// Loading telegram go routine
-	// go utils.InitTelegram(db)
+	go utils.InitTelegram(db)
 
 	// DB Migration
 	Migrate(db)
