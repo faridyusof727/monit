@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// Loading telegram go routine
-	go utils.InitTelegram(db)
+	// go utils.InitTelegram(db)
 
 	// DB Migration
 	Migrate(db)
@@ -52,8 +52,8 @@ func main() {
 	// Middlewares
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
 	e.Use(firebase.Check)
-	
 
 	// Router
 	initRouter(e, db)
