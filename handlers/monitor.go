@@ -68,7 +68,7 @@ func (m Monitor) Edit(ec echo.Context) error {
 }
 
 func (m Monitor) List(ec echo.Context) error {
-	monitors := []models.Monitor{}
+	var monitors []models.Monitor
 
 	op := m.DB.Where(models.Monitor{Owner: ec.Request().Header.Get("UID")}).Find(&monitors)
 	if op.Error != nil {
