@@ -45,6 +45,7 @@ func InitCron(dbsql *gorm.DB) {
 				var resp *http.Response
 				var record models.Record
 
+				startTime := time.Now()
 				client := http.Client{
 					Timeout: time.Duration(val.TimeoutInSecond) * time.Second,
 				}
@@ -53,21 +54,24 @@ func InitCron(dbsql *gorm.DB) {
 				} else {
 					resp, err = client.Post(val.Type+"://"+val.Url, "application/json", nil)
 				}
-
+				duration := time.Now().Sub(startTime)
 				if err != nil {
 					record.MonitorID = val.ID
 					record.Status = "ERROR"
 					record.Code = "9999"
+					record.ResponseTime = duration.Milliseconds()
 					dbsql.Create(&record)
 				} else {
 					if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 						record.MonitorID = val.ID
 						record.Status = "OK"
+						record.ResponseTime = duration.Milliseconds()
 						record.Code = strconv.Itoa(resp.StatusCode)
 						dbsql.Create(&record)
 					} else {
 						record.MonitorID = val.ID
 						record.Status = "KO"
+						record.ResponseTime = duration.Milliseconds()
 						record.Code = strconv.Itoa(resp.StatusCode)
 						dbsql.Create(&record)
 

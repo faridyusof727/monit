@@ -14,4 +14,7 @@ func initRouter(e *echo.Echo, db *gorm.DB) {
 	e.GET("/monitors/:id", handlers.Monitor{DB: db}.View)
 	e.DELETE("/monitors/:id", handlers.Monitor{DB: db}.Delete)
 	e.PATCH("/monitors/:id", handlers.Monitor{DB: db}.Edit)
+
+	// Records
+	e.GET("/monitors/:id/records", handlers.Record{DB: db}.View)
 }

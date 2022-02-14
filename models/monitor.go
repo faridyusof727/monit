@@ -31,6 +31,7 @@ type Monitor struct {
 	RequestHeader    sql.NullString `json:"request_header,omitempty"`
 	SuccessCodes     sql.NullString `json:"success_codes,omitempty"`
 	FailCodes        sql.NullString `json:"fail_codes,omitempty"`
+	Records          []Record       `json:"records"`
 }
 
 func (a Monitor) Validate() error {
