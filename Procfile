@@ -1,1 +1,1 @@
-web: echo ${FIREBASE} > firebase-admin-sdk.json && mon-tool-be
+web: cd app && echo ${FIREBASE} > firebase-admin-sdk.json && bin/mon-tool-be
