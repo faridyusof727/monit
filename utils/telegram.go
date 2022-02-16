@@ -69,6 +69,14 @@ func InitTelegram(db *gorm.DB) {
 
 			splitted := strings.Split(update.Message.Text, "___")
 
+			if len(splitted) == 0 {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You key is incorrect. Please try again. If you have any problem, you can email us a support ticket.")
+				if _, err := bot.Send(msg); err != nil {
+					log.Fatal(err)
+				}
+				continue
+			}
+
 			r := db.Where("owner = ?", splitted[0]).Where("id = ?", splitted[1]).First(&monitor)
 
 			if r.RowsAffected > 0 {
