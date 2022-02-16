@@ -62,9 +62,11 @@ func (m Monitor) Edit(ec echo.Context) error {
 
 	// fix domain
 	u, err := url.Parse(monitor.Url)
-	if err == nil {
-		monitor.Url = u.Host + u.Path + u.RawQuery + u.Fragment
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	monitor.Url = u.Host + u.Path + u.RawQuery + u.Fragment
 
 	op = m.DB.Save(monitor)
 	if op.Error != nil {
