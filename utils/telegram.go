@@ -7,6 +7,7 @@ import (
 	"mon-tool-be/models"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func SendMessage(alerts []models.Alert, message string) {
@@ -50,17 +51,6 @@ func InitTelegram(db *gorm.DB) {
 			continue
 		}
 
-		var alert models.Alert
-		r := db.Where("`key` = ?", update.Message.Chat.ID).First(&alert)
-
-		if r.RowsAffected > 0 {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You had your telegram user integrated. To remove/revoke/restart, please do it inside your dashboard.")
-			if _, err := bot.Send(msg); err != nil {
-				log.Fatal(err)
-			}
-			continue
-		}
-
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID,
 				"Hi "+update.Message.Chat.UserName+",\n"+
@@ -77,7 +67,9 @@ func InitTelegram(db *gorm.DB) {
 			var alert models.Alert
 			var monitor models.Monitor
 
-			r := db.Where("owner = ?", update.Message.Text).First(&monitor)
+			splitted := strings.Split(update.Message.Text, "___")
+
+			r := db.Where("owner = ?", splitted[0]).Where("id = ?", splitted[1]).First(&monitor)
 
 			if r.RowsAffected > 0 {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You key is correct. You will receive alert as a message. You also may invite our bot to a group.")
