@@ -3,8 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"net/url"
-
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
@@ -36,12 +34,6 @@ type Monitor struct {
 }
 
 func (a Monitor) Validate() error {
-
-	u, err := url.Parse(a.Url)
-	if err == nil {
-		a.Url = u.Host + u.Path + u.RawQuery + u.Fragment
-	}
-
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Name, validation.Required),
 		validation.Field(&a.Url, validation.Required),

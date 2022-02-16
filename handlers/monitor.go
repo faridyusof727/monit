@@ -3,6 +3,7 @@ package handlers
 import (
 	"mon-tool-be/models"
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -58,6 +59,12 @@ func (m Monitor) Edit(ec echo.Context) error {
 
 	// add UID as owner
 	monitor.Owner = ec.Request().Header.Get("UID")
+
+	// fix domain
+	u, err := url.Parse(monitor.Url)
+	if err == nil {
+		monitor.Url = u.Host + u.Path + u.RawQuery + u.Fragment
+	}
 
 	op = m.DB.Save(monitor)
 	if op.Error != nil {
