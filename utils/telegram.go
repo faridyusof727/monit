@@ -45,6 +45,7 @@ func InitTelegram(db *gorm.DB) {
 
 	updates := bot.GetUpdatesChan(updateConfig)
 
+OUTER:
 	for update := range updates {
 
 		if update.Message == nil {
@@ -74,7 +75,7 @@ func InitTelegram(db *gorm.DB) {
 				if _, err := bot.Send(msg); err != nil {
 					log.Fatal(err)
 				}
-				continue
+				continue OUTER
 			}
 
 			r := db.Where("owner = ?", splitted[0]).Where("id = ?", splitted[1]).First(&monitor)
