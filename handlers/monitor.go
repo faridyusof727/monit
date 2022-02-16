@@ -29,6 +29,14 @@ func (m Monitor) Store(ec echo.Context) error {
 	// add UID as owner
 	monitor.Owner = ec.Request().Header.Get("UID")
 
+	// fix domain
+	u, err := url.Parse(monitor.Url)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	monitor.Url = u.Host + u.Path + u.RawQuery + u.Fragment
+
 	op := m.DB.Create(monitor)
 	if op.Error != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, op.Error.Error())
