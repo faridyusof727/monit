@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	scribble "github.com/nanobox-io/golang-scribble"
 	"github.com/robfig/cron/v3"
@@ -8,6 +9,7 @@ import (
 	"mon-tool-be/models"
 	"mon-tool-be/utils"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -54,6 +56,9 @@ func InitCron(dbsql *gorm.DB) {
 				} else {
 					resp, err = client.Post(val.Type+"://"+val.Url, "application/json", nil)
 				}
+
+				SSLCheck(&val, &record)
+
 				duration := time.Now().Sub(startTime)
 				if err != nil {
 					record.MonitorID = val.ID
@@ -94,4 +99,52 @@ func InitCron(dbsql *gorm.DB) {
 		}
 	})
 	c.Start()
+}
+
+func SSLCheck(val *models.Monitor, record *models.Record) {
+	if val.Type == models.TypeHttps {
+
+		record.SSLStatus = "OK"
+
+		u, _ := url.Parse(val.Type + "://" + val.Url)
+
+		conf := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+
+		conn, err := tls.Dial("tcp", u.Host+":443", conf)
+		if err != nil {
+			record.SSLStatus = "KO"
+			if conn != nil {
+				_ = conn.Close()
+			}
+		}
+		defer func(conn *tls.Conn) {
+			err := conn.Close()
+			if err != nil {
+
+			}
+		}(conn)
+
+		if record.SSLStatus == "OK" {
+			err = conn.VerifyHostname(u.Host)
+			if err != nil {
+				record.SSLStatus = "KO"
+				_ = conn.Close()
+			}
+		}
+
+		if record.SSLStatus == "OK" {
+			certs := conn.ConnectionState().PeerCertificates
+			for _, cert := range certs {
+				record.SSLIssuer = fmt.Sprint(cert.Issuer)
+				record.SSLExpiry = fmt.Sprint(cert.NotAfter.Format("2006-January-02"))
+				record.SSLCommonName = fmt.Sprint(cert.Issuer.CommonName)
+			}
+		}
+
+		if record.SSLStatus == "OK" {
+			_ = conn.Close()
+		}
+	}
 }
