@@ -70,7 +70,6 @@ func InitCron(dbsql *gorm.DB) {
 					conn, err := tls.Dial("tcp", u.Host+":443", conf)
 					if err != nil {
 						record.SSLStatus = "KO"
-						_ = conn.Close()
 					}
 
 					if record.SSLStatus == "OK" {
