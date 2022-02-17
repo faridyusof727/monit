@@ -23,12 +23,12 @@ func SendMessage(alerts []models.Alert, message string) {
 	for _, alert := range alerts {
 		telegramID, err := strconv.ParseInt(alert.Key, 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		msg := tgbotapi.NewMessage(telegramID, message)
 		if _, err := bot.Send(msg); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}
 }
