@@ -79,8 +79,11 @@ func InitCron(dbsql *gorm.DB) {
 					if err != nil {
 						record.SSLStatus = "KO"
 					}
-					defer tlsConn.Close()
-					conn := tlsConn.(*tls.Conn)
+
+					var conn *tls.Conn
+					if record.SSLStatus == "OK" {
+						conn = tlsConn.(*tls.Conn)
+					}
 
 					if record.SSLStatus == "OK" {
 						err = conn.VerifyHostname(u.Host)
