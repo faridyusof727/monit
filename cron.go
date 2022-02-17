@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -62,7 +63,7 @@ func InitCron(dbsql *gorm.DB) {
 
 					record.SSLStatus = "OK"
 
-					u, _ := url.Parse(val.Type + "://" + val.Url)
+					u, _ := url.Parse(val.Type + "://" + strings.TrimSpace(val.Url))
 
 					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
