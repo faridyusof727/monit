@@ -54,9 +54,9 @@ func InitCron(dbsql *gorm.DB) {
 					Timeout: time.Duration(val.TimeoutInSecond) * time.Second,
 				}
 				if val.RequestMethod == models.ReqGet {
-					resp, err = client.Get(val.Type + "://" + val.Url)
+					resp, err = client.Get(val.Type + "://" + strings.TrimSpace(val.Url))
 				} else {
-					resp, err = client.Post(val.Type+"://"+val.Url, "application/json", nil)
+					resp, err = client.Post(val.Type+"://"+strings.TrimSpace(val.Url), "application/json", nil)
 				}
 
 				if val.Type == models.TypeHttps {
