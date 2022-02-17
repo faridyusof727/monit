@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	scribble "github.com/nanobox-io/golang-scribble"
@@ -63,14 +64,23 @@ func InitCron(dbsql *gorm.DB) {
 
 					u, _ := url.Parse(val.Type + "://" + val.Url)
 
+					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
 					conf := &tls.Config{
 						InsecureSkipVerify: false,
 					}
 
-					conn, err := tls.Dial("tcp", u.Host+":443", conf)
+					dialer := tls.Dialer{
+						Config: conf,
+					}
+
+					tlsConn, err := dialer.DialContext(ctx, "tcp", u.Host+":443")
+					cancel()
 					if err != nil {
 						record.SSLStatus = "KO"
 					}
+					defer tlsConn.Close()
+					conn := tlsConn.(*tls.Conn)
 
 					if record.SSLStatus == "OK" {
 						err = conn.VerifyHostname(u.Host)
