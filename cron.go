@@ -44,6 +44,7 @@ func InitCron(dbsql *gorm.DB) {
 		// TODO:
 		// This process should be in go routine.
 		// I still don't have enough time to refactor this piece of code.
+	MONITORLOOP:
 		for _, val := range monitors {
 			if counter.Current%val.IntervalInMinute == 0 {
 				var resp *http.Response
@@ -55,8 +56,14 @@ func InitCron(dbsql *gorm.DB) {
 				}
 				if val.RequestMethod == models.ReqGet {
 					resp, err = client.Get(val.Type + "://" + strings.TrimSpace(val.Url))
+					if err != nil {
+						continue MONITORLOOP
+					}
 				} else {
 					resp, err = client.Post(val.Type+"://"+strings.TrimSpace(val.Url), "application/json", nil)
+					if err != nil {
+						continue MONITORLOOP
+					}
 				}
 
 				if val.Type == models.TypeHttps {
