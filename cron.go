@@ -64,7 +64,7 @@ func InitCron(dbsql *gorm.DB) {
 					u, _ := url.Parse(val.Type + "://" + val.Url)
 
 					conf := &tls.Config{
-						InsecureSkipVerify: true,
+						InsecureSkipVerify: false,
 					}
 
 					conn, err := tls.Dial("tcp", u.Host+":443", conf)
