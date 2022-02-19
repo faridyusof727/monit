@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/labstack/gommon/log"
 	scribble "github.com/nanobox-io/golang-scribble"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -154,5 +155,36 @@ func InitCron(dbsql *gorm.DB) {
 			fmt.Println("Error", err)
 		}
 	})
+	c.AddFunc("0 16 * * *", CleanUpRecords)
 	c.Start()
+}
+
+func CleanUpRecords() {
+	loc, err := time.LoadLocation("UTC")
+	if err != nil {
+		log.Error("timezone error")
+		return
+	}
+	time.Local = loc
+
+	thetime := time.Now().AddDate(0, 0, -2)
+
+	db, err := InitDB()
+	if err != nil {
+		log.Error("db error")
+		return
+	}
+
+	op := db.Unscoped().Where("created_at < ?", thetime.Format("2006-01-02 15:04:05")).Delete(&models.Record{})
+	if op.Error != nil {
+		log.Error("db query error")
+		return
+	}
+
+	sqlDB, err := db.DB()
+	err = sqlDB.Close()
+	if err != nil {
+		log.Error("db close error")
+		return
+	}
 }
