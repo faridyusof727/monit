@@ -155,7 +155,7 @@ func InitCron(dbsql *gorm.DB) {
 			fmt.Println("Error", err)
 		}
 	})
-	c.AddFunc("0 16 * * *", CleanUpRecords)
+	c.AddFunc("30 12 * * *", CleanUpRecords)
 	c.Start()
 }
 
