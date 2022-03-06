@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func initRouter(e *echo.Echo, db *gorm.DB) {
+func initRouter(e *echo.Group, db *gorm.DB) {
 	// Monitor Routes
 	e.POST("/monitors", handlers.Monitor{DB: db}.Store)
 	e.GET("/monitors", handlers.Monitor{DB: db}.List)

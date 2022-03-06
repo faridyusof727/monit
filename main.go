@@ -1,6 +1,7 @@
 package main
 
 import (
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"mon-tool-be/middlewares"
 	"mon-tool-be/utils"
 	"os"
@@ -9,8 +10,22 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	_ "mon-tool-be/docs"
 )
 
+// @title Uptime Agent Swagger
+// @version 1.0
+// @description This is the API for Uptime Agent Swagger.
+
+// @contact.name Farid Yusof
+// @contact.url https://www.facebook.com/faridyusof727/
+// @contact.email faridyusof727@gmail.com
+
+// @license.name GNU GENERAL PUBLIC LICENSE
+// @license.url https://github.com/faridyusof727/monit/blob/main/LICENSE
+
+// @host localhost:1323
+// @BasePath /
 func main() {
 	// Echo instance
 	e := echo.New()
@@ -55,10 +70,14 @@ func main() {
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middleware.Secure())
 	e.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
-	e.Use(firebase.Check)
+
+	// Swagger
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Router
-	initRouter(e, db)
+	g := e.Group("")
+	g.Use(firebase.Check)
+	initRouter(g, db)
 
 	// Server start
 	err = e.Start(":1323")
